@@ -1,204 +1,161 @@
-# Brain Tumor Detection and Analysis System
+# Brain Tumor Analysis System
 
-This project implements a comprehensive system for brain tumor detection, segmentation, treatment analysis, and prognostic analysis using GANs and Machine Vision techniques.
-
-## Features
-
-- Brain tumor detection and segmentation using GANs
-- Prognostic analysis for treatment outcomes
-- Web-based interface for easy interaction
-- Support for both .nii and .h5 file formats
-- Detailed tumor volume calculation
-- Confidence-based prognosis prediction
-
-## Prerequisites
-
-- Python 3.8 or higher
-- CUDA-capable GPU (recommended)
-- Required Python packages (see requirements.txt)
+This project implements a comprehensive system for brain tumor analysis in two stages:
+1. Brain Tumor Detection and Segmentation using NIfTI files
+2. Prognostic Analysis using H5 files
 
 ## Project Structure
 ```
 GAN & MV/
-├── data/
-│   ├── BraTS_NII/          # Raw NIfTI files
-│   └── BraTS_H5/           # Raw H5 files
-├── processed_data/         # Preprocessed dataset
-├── models/                 # Model implementations
-├── utils/                  # Utility functions
-├── app/                    # Web application
-└── notebooks/              # Jupyter notebooks for analysis
+├── stage1/                    # Tumor Detection Stage
+│   ├── data/
+│   │   └── BraTS_NII/        # Raw NIfTI files
+│   ├── models/               # GAN and segmentation models
+│   ├── preprocessing/        # NIfTI data preprocessing
+│   └── processed_data/       # Preprocessed NIfTI data
+│
+├── stage2/                    # Prognostic Analysis Stage
+│   ├── data/
+│   │   └── BraTS_H5/        # Raw H5 files
+│   ├── models/               # Prognostic models
+│   ├── preprocessing/        # H5 data preprocessing
+│   └── processed_data/       # Preprocessed H5 data
+│
+└── app/                      # Web application
 ```
 
 ## Implementation Steps
 
-### 1. Environment Setup
-```bash
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+### Stage 1: Tumor Detection and Segmentation
 
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 2. Data Preprocessing
-1. Place your raw data in the correct directories:
-   - NIfTI files: `data/BraTS_NII/`
-   - H5 files: `data/BraTS_H5/data/`
-
-2. Run the preprocessing script:
-```bash
-python data_preprocessing.py
-```
-This will:
-- Organize and validate the dataset
-- Apply preprocessing transformations
-- Split data into train/val/test sets
-- Create the processed data directory structure
-
-### 3. Model Development
-
-#### 3.1 GAN Model for Tumor Detection
-1. Implement the GAN architecture in `models/gan_model.py`
-2. Train the model:
-```bash
-python train_gan.py
-```
-
-#### 3.2 Segmentation Model
-1. Implement the segmentation model in `models/segmentation_model.py`
-2. Train the model:
-```bash
-python train_segmentation.py
-```
-
-#### 3.3 Prognostic Analysis Model
-1. Implement the prognostic model in `models/prognostic_model.py`
-2. Train the model:
-```bash
-python train_prognostic.py
-```
-
-### 4. Web Application Development
-1. Set up the Flask application in `app/`
-2. Implement the frontend interface
-3. Create API endpoints for model inference
-4. Run the application:
-```bash
-python app.py
-```
-
-## Detailed Implementation Guide
-
-### Phase 1: Data Preparation
-1. **Data Organization**
-   - Ensure NIfTI files are in `data/BraTS_NII/` with proper case directories
-   - Place H5 files in `data/BraTS_H5/data/`
-   - Verify file naming conventions match the preprocessing script
+1. **Data Preparation**
+   - Place NIfTI files in `stage1/data/BraTS_NII/` with structure:
+     ```
+     BraTS_NII/
+     └── BraTS2021_00000/
+         ├── flair.nii
+         ├── seg.nii
+         ├── t1.nii
+         ├── t1ce.nii
+         └── t2.nii
+     ```
 
 2. **Preprocessing**
-   - Run `data_preprocessing.py`
-   - Verify the processed data structure
-   - Check for any preprocessing errors or warnings
+   ```bash
+   cd stage1/preprocessing
+   python nii_preprocessor.py
+   ```
+   This will:
+   - Organize NIfTI files by case
+   - Apply preprocessing transformations
+   - Split data into train/val/test sets
 
-### Phase 2: Model Development
-1. **GAN Implementation**
-   - Implement generator and discriminator networks
-   - Set up training loop with proper loss functions
-   - Implement data augmentation pipeline
-   - Train and validate the model
-
-2. **Segmentation Model**
-   - Implement U-Net or similar architecture
-   - Set up training with proper metrics
-   - Implement validation pipeline
-   - Train and evaluate the model
-
-3. **Prognostic Analysis**
-   - Implement feature extraction from H5 data
-   - Set up prognostic model architecture
-   - Implement training and evaluation pipeline
-   - Train and validate the model
-
-### Phase 3: Web Application
-1. **Backend Development**
-   - Set up Flask application structure
-   - Implement model loading and inference
-   - Create API endpoints
-   - Implement error handling
-
-2. **Frontend Development**
-   - Design user interface
-   - Implement file upload functionality
-   - Create visualization components
-   - Implement results display
-
-3. **Integration**
-   - Connect frontend with backend
-   - Implement proper error handling
-   - Add loading states and feedback
-   - Test the complete pipeline
-
-### Phase 4: Testing and Deployment
-1. **Model Testing**
-   - Evaluate models on test set
-   - Perform cross-validation
-   - Analyze model performance
-   - Optimize hyperparameters
-
-2. **Application Testing**
-   - Test all API endpoints
-   - Verify file upload and processing
-   - Test visualization components
-   - Perform stress testing
-
-3. **Deployment**
-   - Set up production environment
-   - Configure web server
-   - Implement security measures
-   - Monitor performance
-
-## Best Practices
-1. **Version Control**
-   - Use Git for version control
-   - Create meaningful commit messages
-   - Maintain separate branches for features
-
-2. **Code Organization**
-   - Follow PEP 8 style guide
-   - Use meaningful variable names
-   - Add proper documentation
-   - Implement error handling
-
-3. **Model Development**
-   - Use proper validation techniques
-   - Implement early stopping
+3. **Model Training**
+   ```bash
+   cd stage1/models
+   python train_gan.py
+   ```
+   This will:
+   - Train the GAN model for tumor detection
    - Save model checkpoints
-   - Log training metrics
+   - Generate sample images
 
-4. **Testing**
-   - Write unit tests
-   - Perform integration testing
-   - Test edge cases
-   - Validate results
+### Stage 2: Prognostic Analysis
+
+1. **Data Preparation**
+   - Place H5 files in `stage2/data/BraTS_H5/data/`
+
+2. **Preprocessing**
+   ```bash
+   cd stage2/preprocessing
+   python h5_preprocessor.py
+   ```
+   This will:
+   - Organize H5 files by case
+   - Apply preprocessing transformations
+   - Split data into train/val/test sets
+
+3. **Model Training**
+   ```bash
+   cd stage2/models
+   python train_prognostic.py
+   ```
+   This will:
+   - Train the prognostic model
+   - Save model checkpoints
+   - Generate predictions
+
+### Web Application
+
+1. **Setup**
+   ```bash
+   cd app
+   python app.py
+   ```
+
+2. **Usage**
+   - Access the web interface at `http://localhost:5000`
+   - Upload NIfTI files for tumor detection
+   - Upload H5 files for prognostic analysis
+   - View results and visualizations
+
+## Environment Setup
+
+1. Create and activate virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Data Preprocessing Details
+
+### Stage 1: NIfTI Files
+- Intensity normalization
+- Data augmentation (rotation, flipping, zooming)
+- Slice extraction from 3D volumes
+- Train/val/test split
+
+### Stage 2: H5 Files
+- Data normalization
+- Resizing to standard dimensions
+- Train/val/test split
+
+## Model Architecture
+
+### Stage 1: Tumor Detection
+- U-Net based generator
+- PatchGAN discriminator
+- Combined adversarial and pixel-wise loss
+
+### Stage 2: Prognostic Analysis
+- Feature extraction from H5 data
+- Deep learning model for prognosis prediction
+
+## Web Application Features
+- File upload interface
+- Real-time processing
+- Visualization of results
+- Error handling and feedback
 
 ## Troubleshooting
+
 1. **Data Issues**
-   - Verify file formats
+   - Verify file formats and naming conventions
    - Check data integrity
-   - Validate preprocessing steps
-   - Monitor memory usage
+   - Monitor preprocessing steps
 
 2. **Model Training**
    - Monitor loss curves
    - Check for overfitting
    - Validate data augmentation
-   - Optimize batch size
 
 3. **Application**
    - Check server logs
-   - Monitor memory usage
    - Verify API responses
    - Test error handling
 
