@@ -1,7 +1,7 @@
 import numpy as np
 import nibabel as nib
 from monai.transforms import (
-    Compose, LoadImage, AddChannel, ScaleIntensity,
+    Compose, LoadImage, EnsureChannelFirst, ScaleIntensity,
     RandRotate90, RandFlip, RandZoom, RandGaussianNoise
 )
 import os
@@ -112,7 +112,7 @@ class NIIPreprocessor:
     def preprocess_nii(self, data: np.ndarray) -> np.ndarray:
         """Preprocess NIfTI data with MONAI transforms"""
         transforms = Compose([
-            AddChannel(),
+            EnsureChannelFirst(),
             ScaleIntensity(),
             RandRotate90(prob=0.5),
             RandFlip(prob=0.5),
