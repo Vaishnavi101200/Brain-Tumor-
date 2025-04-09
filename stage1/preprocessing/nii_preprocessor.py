@@ -21,19 +21,26 @@ class NIIPreprocessor:
         Organize NIfTI files by case and modality.
         Returns dictionary: {case_id: {modality: file_path}}
         """
+        print(f"Looking for files in: {source_dir}")
         cases = {}
         case_dirs = glob.glob(os.path.join(source_dir, "BraTS*"))
+        print(f"Found {len(case_dirs)} case directories")
         
         for case_dir in case_dirs:
             case_id = os.path.basename(case_dir)
             cases[case_id] = {}
+            print(f"\nProcessing case: {case_id}")
             
-            # Find all .nii files in the case directory
-            nii_files = glob.glob(os.path.join(case_dir, "*.nii"))
+            # Find all .nii.gz files in the case directory
+            nii_files = glob.glob(os.path.join(case_dir, "*.nii.gz"))
+            print(f"Found {len(nii_files)} .nii.gz files in {case_dir}")
             
             for nii_file in nii_files:
-                modality = os.path.basename(nii_file).split('.')[0]  # flair, t1, t1ce, t2, seg
+                # Extract modality from filename (e.g., patient_id_flair.nii.gz -> flair)
+                filename = os.path.basename(nii_file)
+                modality = filename.split('_')[-1].split('.')[0]  # Get the part before .nii.gz
                 cases[case_id][modality] = nii_file
+                print(f"  - {modality}: {nii_file}")
                 
         return cases
 
@@ -55,8 +62,13 @@ class NIIPreprocessor:
         print("Organizing NIfTI files...")
         cases = self.organize_files(self.base_path)
         
+        if not cases:
+            raise ValueError(f"No NIfTI files found in {self.base_path}. Please check the directory structure and file paths.")
+        
         # Split cases
         case_ids = list(cases.keys())
+        print(f"\nTotal cases found: {len(case_ids)}")
+        
         train_cases, temp_cases = train_test_split(
             case_ids, train_size=train_size, 
             random_state=random_state
@@ -86,7 +98,7 @@ class NIIPreprocessor:
             
             # Copy NIfTI files
             for modality, nii_path in cases[case_id].items():
-                shutil.copy2(nii_path, os.path.join(case_dir, f"{modality}.nii"))
+                shutil.copy2(nii_path, os.path.join(case_dir, f"{modality}.nii.gz"))
 
     def _print_split_statistics(self, split_dirs: dict):
         """Print statistics about the split dataset"""
